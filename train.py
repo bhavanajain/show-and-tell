@@ -6,6 +6,7 @@ from models import Encoder, Decoder
 from utils import collate_fn
 from vocab import build_vocab
 import pickle
+import argparse
 
 def main(args):
 
@@ -55,7 +56,7 @@ def main(args):
 
 	total_examples = len(train_dataloader)
 	for epoch in range(args.start_epoch, args.num_epochs):
-		for i, (images, captions, lengths) in enumerate(train_dataloader):
+		for i, (images, captions, lengths) in enumerate(train_dataloader[:500]):
 			images = images.to(device)
 			captions = captions.to(device)
 			targets = pack_padded_sequence(captions, lengths, batch_first=True).data
