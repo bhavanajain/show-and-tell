@@ -7,6 +7,7 @@ from utils import collate_fn
 from vocab import build_vocab
 import pickle
 import argparse
+import os
 
 def main(args):
 
