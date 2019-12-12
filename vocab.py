@@ -29,9 +29,9 @@ def build_vocab(captions_json, threshold):
 	for i, sample_id in enumerate(coco.anns.keys()):
 		caption = str(coco.anns[sample_id]['caption'])
 		tokens = nltk.tokenize.word_tokenize(caption.lower())
-		counter.update(tokens)
+		word_counts.update(tokens)
 
-	filtered_words = [word for word in counter if counter[word] >= threshold]
+	filtered_words = [word for word in word_counts if word_counts[word] >= threshold]
 
 	vocab = Vocabulary()
 	# note: pad should be at index 0, since we pad with zeros
