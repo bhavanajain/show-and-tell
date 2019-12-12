@@ -10,7 +10,7 @@ import argparse
 import os
 from torchvision import transforms
 from dataset import cocoDataset
-
+import numpy as np
 
 def main(args):
 
@@ -45,8 +45,8 @@ def main(args):
 		num_workers=args.num_workers, 
 		collate_fn=collate_fn)
 
-	encoder = Encoder((3, 224, 224), args.embed_size)
-	decoder = Decoder(len(vocab_object), args.embed_size, args.hidden_size)
+	encoder = Encoder((3, 224, 224), args.embed_size).to(device)
+	decoder = Decoder(len(vocab_object), args.embed_size, args.hidden_size).to(device)
 
 	criterion = nn.CrossEntropyLoss()
 	params = list(decoder.parameters()) + list(encoder.linear.parameters())
@@ -60,7 +60,8 @@ def main(args):
 
 	total_examples = len(train_dataloader)
 	for epoch in range(args.start_epoch, args.num_epochs):
-		for i, (images, captions, lengths) in enumerate(train_dataloader[:500]):
+		count = 0
+		for i, (images, captions, lengths) in enumerate(train_dataloader):
 			images = images.to(device)
 			captions = captions.to(device)
 			targets = pack_padded_sequence(captions, lengths, batch_first=True).data
@@ -80,6 +81,10 @@ def main(args):
 				loss_val = "{:.4f}".format(loss.item())
 				perplexity_val = "{:5.4f}".format(np.exp(loss.item()))
 				print(f"epoch=[{epoch}/{args.num_epochs}], iteration=[{i}/{total_examples}], loss={loss_val}, perplexity={perplexity_val}")
+
+			count += 1
+			if count == 128:
+				break
 
 		torch.save({
 			'encoder': encoder.state_dict(),

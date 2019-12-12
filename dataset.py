@@ -1,4 +1,9 @@
 from pycocotools.coco import COCO
+import torch.utils.data as data
+import nltk
+from PIL import Image
+import torch
+import os
 
 class cocoDataset(data.Dataset):
 	def __init__(self, root, json, vocab_object, transforms=None):
@@ -13,7 +18,7 @@ class cocoDataset(data.Dataset):
 		caption = self.coco_object.anns[curr_index]['caption']
 		img_id = self.coco_object.anns[curr_index]['image_id']
 
-		img_path = coco.loadImgs(img_id)[0]['file_name']
+		img_path = self.coco_object.loadImgs(img_id)[0]['file_name']
 		image = Image.open(os.path.join(self.root, img_path)).convert('RGB')
 
 		if self.transforms is not None:

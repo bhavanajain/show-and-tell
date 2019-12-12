@@ -33,9 +33,9 @@ class Decoder(nn.Module):
 		self.lstm = nn.LSTM(embed_size, hidden_size, batch_first=True)
 		self.linear = nn.Linear(hidden_size, vocab_size)
 
-	def forward(image_embedding, sequence):
-		seq_embedding = nn.embedding(sequence)
-		inputs_embedding = torch.cat((features.unsqueeze(1), seq_embedding), 1)
+	def forward(self, image_embedding, sequence, lengths):
+		seq_embedding = self.embedding(sequence)
+		inputs_embedding = torch.cat((image_embedding.unsqueeze(1), seq_embedding), 1)
 		packed_inputs = pack_padded_sequence(inputs_embedding, lengths, batch_first=True)
 		hidden_states, last_hidden_state = self.lstm(packed_inputs)
 		# hidden_states is packed input, extract data and feed into linear
