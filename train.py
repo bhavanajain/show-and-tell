@@ -104,6 +104,9 @@ if __name__ == '__main__':
     parser.add_argument('--embed_size', type=int, default=512)
     parser.add_argument('--num_epochs', type=int, default=30)
     parser.add_argument('--start_epoch', type=int, required=True)
+    parser.add_argument('--log_interval', type=int, default=100)
+
+    parser.add_argument('--learning_rate', type=float, default=5e-4)
 
     args = parser.parse_args()
     print(args)
