@@ -4,7 +4,7 @@ from torchvision import models
 from torch.nn.utils.rnn import pack_padded_sequence
 from models import Encoder, Decoder
 from utils import collate_fn
-from vocab import construct_vocab
+from vocab import build_vocab
 import pickle
 
 def main(args):
@@ -13,11 +13,11 @@ def main(args):
 	print(f"Training on {device}")
 
 	if not os.path.exists(args.models_dir):
-		os.makedirs(args.model_path)		
+		os.makedirs(args.models_dir)		
 
 	if args.build_vocab:
-		print(f"Constructing vocabulary from captions at {args.captions_json} and with count threshold={args.threshold}")
-		vocab_object = construct_vocab(args.captions_json, args.threshold)
+		print(f"Building vocabulary from captions at {args.captions_json} and with count threshold={args.threshold}")
+		vocab_object = build_vocab(args.captions_json, args.threshold)
 		with open(args.vocab_path, "wb") as vocab_f:
 			pickle.dump(vocab_object, vocab_f)
 		print(f"Saved the vocabulary object to {args.vocab_path}, total size={len(vocab_object)}")
@@ -81,23 +81,29 @@ def main(args):
 			'decoder': decoder.state_dict(),
 			'optimizer': optimizer.state_dict()
 		}, os.path.join(args.models_dir, 'model-{}.ckpt'.format(epoch+1)))
-		
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--build_vocab', type=bool, default=True, required=True)
-    parser.add_argument('--vocab_path', type=str, default=None, help='path for vocabulary', required=True)
-    parser.add_argument('--image_root', type=str, default='train2014', required=True)
-    parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json", required=True)
-    parser.add_argument('--threshold', type=int, default=5, required=True)
-    parser.add_argument('--batch_size', type=int, default=128, required=True)
-    parser.add_argument('--num_workers', type=int, default=8, required=True)
-    parser.add_argument('--models_dir', type=str, default='models_dir', required=True)
-    parser.add_argument('--ckpt_path', type=str, default=None, required=True)
-    parser.add_argument('--hidden_size', type=int, default=512, required=True)
-    parser.add_argument('--embed_size', type=int, default=512, required=True)
-    parser.add_argument('--num_epochs', type=int, default=30, required=True)
-    parser.add_argument('--start_epoch', type=int, default=0, required=True)
+
+    # Name models_dir appropriately across experiments lest models will get overwritten
+    parser.add_argument('--models_dir', type=str, required=True)
+
+    parser.add_argument('--build_vocab', type=bool, default=False, action="store_true")
+    parser.add_argument('--vocab_path', type=str, help='vocabulary pickle path', required=True)
+    parser.add_argument('--image_root', type=str, default='train2014')
+    parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json")
+    parser.add_argument('--threshold', type=int, default=5)
+
+    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--num_workers', type=int, default=8)
+
+    parser.add_argument('--ckpt_path', type=str, default=None)
+
+    parser.add_argument('--hidden_size', type=int, default=512)
+    parser.add_argument('--embed_size', type=int, default=512)
+    parser.add_argument('--num_epochs', type=int, default=30)
+    parser.add_argument('--start_epoch', type=int, required=True)
 
     args = parser.parse_args()
     print(args)

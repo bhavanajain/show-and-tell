@@ -22,7 +22,7 @@ class Vocabulary:
 	def __len__(self):
 		return len(self.word2index)
 
-def construct_vocab(captions_json, threshold):
+def build_vocab(captions_json, threshold):
 	coco = COCO(captions_json)
 	word_counts = Counter()
 	for i, sample_id in enumerate(coco.anns.keys()):
@@ -43,17 +43,17 @@ def construct_vocab(captions_json, threshold):
 
 	return vocab
 
-captions_json = "annotations/captions_train2014.json"
-threshold = 5
-vocab_path = "vocab_train2014.json"
+# captions_json = "annotations/captions_train2014.json"
+# threshold = 5
+# vocab_path = "vocab_train2014.json"
 
-print(f"Constructing vocabulary from captions at {captions_json} and with count threshold={threshold}")
+# print(f"Constructing vocabulary from captions at {captions_json} and with count threshold={threshold}")
 
-vocab_object = construct_vocab(captions_json, threshold)
-with open(vocab_path, "wb") as vocab_f:
-	pickle.dump(vocab_object, vocab_f)
+# vocab_object = construct_vocab(captions_json, threshold)
+# with open(vocab_path, "wb") as vocab_f:
+# 	pickle.dump(vocab_object, vocab_f)
 
-print(f"Saved the vocabulary object to {vocab_path}, total size={len(vocab_object)}")
+# print(f"Saved the vocabulary object to {vocab_path}, total size={len(vocab_object)}")
 
 
 
