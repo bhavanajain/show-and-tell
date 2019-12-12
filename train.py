@@ -37,6 +37,7 @@ def main(args):
 		                transforms.ToTensor(),
 		                transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 	                ])
+
 	train_dataset = cocoDataset(args.image_root, args.captions_json, vocab_object, img_transforms)
 	train_dataloader = torch.utils.data.DataLoader(
 		dataset=train_dataset, 
@@ -52,14 +53,19 @@ def main(args):
 	params = list(decoder.parameters()) + list(encoder.linear.parameters())
 	optimizer = torch.optim.Adam(params, lr=args.learning_rate)
 
+	start_epoch = 0
+
 	if args.ckpt_path is not None:
 		model_ckpt = torch.load(args.ckpt_path)
-		encoder.load_state(model_ckpt['encoder'])
-		decoder.load_state(model_ckpt['decoder'])
-		optimizer.load_state(model_ckpt['optimizer'])
+		start_epoch = model_ckpt['epoch'] + 1
+		prev_loss = model_ckpt['loss']
+		encoder.load_state_dict(model_ckpt['encoder'])
+		decoder.load_state_dict(model_ckpt['decoder'])
+		optimizer.load_state_dict(model_ckpt['optimizer'])
+		print(f"Loaded model and optimizer state from {args.ckpt_path}; start epoch at {start_epoch}; prev loss={prev_loss}")
 
 	total_examples = len(train_dataloader)
-	for epoch in range(args.start_epoch, args.num_epochs):
+	for epoch in range(start_epoch, args.num_epochs):
 		count = 0
 		for i, (images, captions, lengths) in enumerate(train_dataloader):
 			images = images.to(device)
@@ -87,10 +93,12 @@ def main(args):
 				break
 
 		torch.save({
+			'epoch': epoch,
 			'encoder': encoder.state_dict(),
 			'decoder': decoder.state_dict(),
-			'optimizer': optimizer.state_dict()
-		}, os.path.join(args.models_dir, 'model-{}.ckpt'.format(epoch+1)))
+			'optimizer': optimizer.state_dict(),
+			'loss': loss
+		}, os.path.join(args.models_dir, 'model-after-epoch-{}.ckpt'.format(epoch)))
 
 
 if __name__ == '__main__':
@@ -113,7 +121,6 @@ if __name__ == '__main__':
     parser.add_argument('--hidden_size', type=int, default=512)
     parser.add_argument('--embed_size', type=int, default=512)
     parser.add_argument('--num_epochs', type=int, default=30)
-    parser.add_argument('--start_epoch', type=int, required=True)
     parser.add_argument('--log_interval', type=int, default=100)
 
     parser.add_argument('--learning_rate', type=float, default=5e-4)
