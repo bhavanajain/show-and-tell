@@ -1,6 +1,7 @@
 from pycocotools.coco import COCO
 from collections import Counter
 import pickle
+import nltk
 
 class Vocabulary:
 	def __init__(self):
