@@ -13,7 +13,7 @@ def main(args):
 	print(f"Training on {device}")
 
 	if not os.path.exists(args.models_dir):
-		os.makedirs(args.model_path)
+		os.makedirs(args.model_path)		
 
 	if args.build_vocab:
 		print(f"Constructing vocabulary from captions at {args.captions_json} and with count threshold={args.threshold}")
@@ -47,30 +47,58 @@ def main(args):
 	params = list(decoder.parameters()) + list(encoder.linear.parameters())
 	optimizer = torch.optim.Adam(params, lr=args.learning_rate)
 
+	if args.ckpt_path is not None:
+		model_ckpt = torch.load(args.ckpt_path)
+		encoder.load_state(model_ckpt['encoder'])
+		decoder.load_state(model_ckpt['decoder'])
+		optimizer.load_state(model_ckpt['optimizer'])
+
 	total_examples = len(train_dataloader)
-	for epoch in range(args.num_epochs):
-		for 
+	for epoch in range(args.start_epoch, args.num_epochs):
+		for i, (images, captions, lengths) in enumerate(train_dataloader):
+			images = images.to(device)
+			captions = captions.to(device)
+			targets = pack_padded_sequence(captions, lengths, batch_first=True).data
 
+			image_embeddings = encoder(images)
+			outputs = decoder(image_embeddings, captions, lengths)
 
+			loss = criterion(outputs, targets)
 
+			decoder.zero_grad()
+			encoder.zero_grad()
+
+			loss.backward()
+			optimizer.step()
+
+			if i % args.log_interval == 0:
+				loss_val = "{:.4f}".format(loss.item())
+				perplexity_val = "{:5.4f}".format(np.exp(loss.item()))
+				print(f"epoch=[{epoch}/{args.num_epochs}], iteration=[{i}/{total_examples}], loss={loss_val}, perplexity={perplexity_val}")
+
+		torch.save({
+			'encoder': encoder.state_dict(),
+			'decoder': decoder.state_dict(),
+			'optimizer': optimizer.state_dict()
+		}, os.path.join(args.models_dir, 'model-{}.ckpt'.format(epoch+1)))
+		
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--build_vocab', type=bool, default=True)
-    parser.add_argument('--vocab_path', type=str, default=None, help='path for vocabulary')
-    parser.add_argument('--image_root', type=str, default='train2014')
-    parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json")
-    parser.add_argument('--threshold', type=int, default=5)
-    parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--num_workers', type=int, default=8)
-    parser.add_argument('--models_dir', type=str, default='models_dir')
-    parser.add_argument('--ckpt_path', type=str, default=None)
-    parser.add_argument('--hidden_size', type=int, default=512)
-    parser.add_argument('--embed_size', type=int, default=512)
+    parser.add_argument('--build_vocab', type=bool, default=True, required=True)
+    parser.add_argument('--vocab_path', type=str, default=None, help='path for vocabulary', required=True)
+    parser.add_argument('--image_root', type=str, default='train2014', required=True)
+    parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json", required=True)
+    parser.add_argument('--threshold', type=int, default=5, required=True)
+    parser.add_argument('--batch_size', type=int, default=128, required=True)
+    parser.add_argument('--num_workers', type=int, default=8, required=True)
+    parser.add_argument('--models_dir', type=str, default='models_dir', required=True)
+    parser.add_argument('--ckpt_path', type=str, default=None, required=True)
+    parser.add_argument('--hidden_size', type=int, default=512, required=True)
+    parser.add_argument('--embed_size', type=int, default=512, required=True)
+    parser.add_argument('--num_epochs', type=int, default=30, required=True)
+    parser.add_argument('--start_epoch', type=int, default=0, required=True)
 
-
-
-   
     args = parser.parse_args()
     print(args)
     main(args)
