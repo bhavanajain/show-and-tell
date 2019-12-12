@@ -113,15 +113,15 @@ if __name__ == '__main__':
     parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json")
     parser.add_argument('--threshold', type=int, default=5)
 
-    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--num_workers', type=int, default=8)
 
     parser.add_argument('--ckpt_path', type=str, default=None)
 
-    parser.add_argument('--hidden_size', type=int, default=512)
     parser.add_argument('--embed_size', type=int, default=512)
+    parser.add_argument('--hidden_size', type=int, default=512)
     parser.add_argument('--num_epochs', type=int, default=30)
-    parser.add_argument('--log_interval', type=int, default=100)
+    parser.add_argument('--log_interval', type=int, default=500)
 
     parser.add_argument('--learning_rate', type=float, default=5e-4)
 
