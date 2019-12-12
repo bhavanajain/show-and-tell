@@ -6,7 +6,8 @@
 
 #SBATCH --partition=gpux1
 #SBATCH --cpus-per-gpu=16
-#SBATCH --time=36
+#SBATCH --time=36:00:00
+#SBATCH --gres=gpu:v100:1
 
 source /opt/apps/anaconda3/etc/profile.d/conda.sh 
 conda activate image_captions
