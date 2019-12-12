@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # Name models_dir appropriately across experiments lest models will get overwritten
     parser.add_argument('--models_dir', type=str, required=True)
 
-    parser.add_argument('--build_vocab', type=bool, default=False, action="store_true")
+    parser.add_argument('--build_vocab', default=False, action="store_true")
     parser.add_argument('--vocab_path', type=str, help='vocabulary pickle path', required=True)
     parser.add_argument('--image_root', type=str, default='train2014')
     parser.add_argument('--captions_json', type=str, default="annotations/captions_train2014.json")
