@@ -5,7 +5,7 @@
 #SBATCH --err="sat_resnet50_lstm1_e512_h512_b256.%j.%N.out"
 
 #SBATCH --partition=gpux1
-#SBATCH --cpu_per_gpu=16
+#SBATCH --cpus-per-gpu=16
 #SBATCH --time=36
 
 source /opt/apps/anaconda3/etc/profile.d/conda.sh 
