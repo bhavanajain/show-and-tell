@@ -17,6 +17,6 @@ srun python train.py \
 	--image_root ../CS-547/image_captions/train2014 \
 	--captions_json ../CS-547/image_captions/annotations/captions_train2014.json \
 	--resnet_size 152 \
-	--rnn_type lstm
+	--rnn_type lstm \
 
 
