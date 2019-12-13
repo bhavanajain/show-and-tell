@@ -23,7 +23,7 @@ class Encoder(nn.Module):
 		elif resnet_size == 152:
 			resnet = models.resnet152(pretrained=True)
 			print('Using resnet152')
-			
+
 		else:
 			print('Incorrect resnet size', resnet_size)
 
@@ -42,11 +42,15 @@ class Encoder(nn.Module):
 		out = self.linear(out)
 		return out
 
+
 class Decoder(nn.Module):
-	def __init__(self, rnn_type, vocab_size, embed_size, hidden_size):
+	def __init__(self, rnn_type, weights_matrix, vocab_size, embed_size, hidden_size):
 		super(Decoder, self).__init__()
-		# Add an option to import golve embeddings
+		
 		self.embedding = nn.Embedding(vocab_size, embed_size)
+		if weights_matrix is not None:
+			self.embedding.load_state_dict({'weight': weights_matrix})
+			self.embedding.weight.requires_grad = False
 
 		# Support GRU or LSTM and give an option for setting numlayers and hidden unit size
 		if rnn_type == 'gru':

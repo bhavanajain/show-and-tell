@@ -6,6 +6,7 @@ import io
 def main(args):
 	with open(args.vocab_path, 'rb') as f:
 		vocab_object = pickle.load(f)
+	print(f"Loaded the vocabulary object from {args.vocab_path}, total size={len(vocab_object)}")
 
 	glove_embeddings = {}
 	with io.open(args.glove_filepath, 'r', encoding='utf-8') as f:

@@ -31,6 +31,33 @@ def main(args):
 			vocab_object = pickle.load(f)
 		print(f"Loaded the vocabulary object from {args.vocab_path}, total size={len(vocab_object)}")
 
+	decoder_learnable = list(decoder.rnn.parameters()) + list(decoder.linear.parameters())
+
+	if args.glove_embed_path:
+		with open(args.glove_embed_path, 'rb') as f:
+			glove_embeddings = pickle.load(f)
+		print(f"Loaded the glove embeddings from {args.glove_embed_path}, total size={len(glove_embeddings)}")
+
+		# We are using 300d glove embeddings
+		args.embed_size = 300
+
+		weights_matrix = np.zeros(len(vocab_object), args.embed_size)
+
+		for word, index in vocab_object.word2index.items():
+			if word in glove_embeddings:
+				weights_matrix[index] = glove_embeddings[word]
+			else:
+				weights_matrix[index] = np.random.normal(scale=0.6, size=(args.embed_size, ))
+
+		weights_matrix = torch.from_numpy(weights_matrix).float().to(device)
+
+
+	else:
+		weights_matrix = None
+		decoder_learnable = decoder_learnable + list(decoder.embedding.parameters())
+
+	encoder_learnable = list(encoder.linear.parameters())
+
 	img_transforms = transforms.Compose([
 		                transforms.Resize((256, 256)),
 		                transforms.RandomCrop((224, 224)),
@@ -47,10 +74,10 @@ def main(args):
 		collate_fn=collate_fn)
 
 	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size).to(device)
-	decoder = Decoder(args.rnn_type, len(vocab_object), args.embed_size, args.hidden_size).to(device)
+	decoder = Decoder(args.rnn_type, weight_matrix, len(vocab_object), args.embed_size, args.hidden_size).to(device)
 
 	criterion = nn.CrossEntropyLoss()
-	params = list(decoder.parameters()) + list(encoder.linear.parameters())
+	params = encoder_learnable + decoder_learnable
 	optimizer = torch.optim.Adam(params, lr=args.learning_rate)
 
 	start_epoch = 0
@@ -122,6 +149,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--rnn_type', type=str, default='lstm')
     parser.add_argument('--resnet_size', type=int, choices=[18, 34, 50, 101, 152], default=50)
+    # parser.add_argument('--use_glove', default=False, action="store_true")
+    parser.add_argument('--glove_embed_path', type=str, default=None)
+
 
     args = parser.parse_args()
     print(args)
