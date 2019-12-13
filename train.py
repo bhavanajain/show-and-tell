@@ -40,7 +40,7 @@ def main(args):
 		# We are using 300d glove embeddings
 		args.embed_size = 300
 
-		weights_matrix = np.zeros(len(vocab_object), args.embed_size)
+		weights_matrix = np.zeros((len(vocab_object), args.embed_size))
 
 		for word, index in vocab_object.word2index.items():
 			if word in glove_embeddings:
