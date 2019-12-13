@@ -71,7 +71,7 @@ def main(args):
 		collate_fn=collate_fn)
 
 	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size).to(device)
-	decoder = Decoder(args.rnn_type, weight_matrix, len(vocab_object), args.embed_size, args.hidden_size).to(device)
+	decoder = Decoder(args.rnn_type, weights_matrix, len(vocab_object), args.embed_size, args.hidden_size).to(device)
 
 	encoder_learnable = list(encoder.linear.parameters())
 	decoder_learnable = list(decoder.rnn.parameters()) + list(decoder.linear.parameters())
