@@ -31,9 +31,8 @@ def main(args):
 			vocab_object = pickle.load(f)
 		print(f"Loaded the vocabulary object from {args.vocab_path}, total size={len(vocab_object)}")
 
-	decoder_learnable = list(decoder.rnn.parameters()) + list(decoder.linear.parameters())
 
-	if args.glove_embed_path:
+	if args.glove_embed_path is not None:
 		with open(args.glove_embed_path, 'rb') as f:
 			glove_embeddings = pickle.load(f)
 		print(f"Loaded the glove embeddings from {args.glove_embed_path}, total size={len(glove_embeddings)}")
@@ -54,9 +53,7 @@ def main(args):
 
 	else:
 		weights_matrix = None
-		decoder_learnable = decoder_learnable + list(decoder.embedding.parameters())
 
-	encoder_learnable = list(encoder.linear.parameters())
 
 	img_transforms = transforms.Compose([
 		                transforms.Resize((256, 256)),
@@ -75,6 +72,11 @@ def main(args):
 
 	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size).to(device)
 	decoder = Decoder(args.rnn_type, weight_matrix, len(vocab_object), args.embed_size, args.hidden_size).to(device)
+
+	encoder_learnable = list(encoder.linear.parameters())
+	decoder_learnable = list(decoder.rnn.parameters()) + list(decoder.linear.parameters())
+	if args.glove_embed_path is None:
+		decoder_learnable = decoder_learnable + list(decoder.embedding.parameters())
 
 	criterion = nn.CrossEntropyLoss()
 	params = encoder_learnable + decoder_learnable
