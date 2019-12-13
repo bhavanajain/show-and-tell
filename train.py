@@ -66,7 +66,6 @@ def main(args):
 
 	total_examples = len(train_dataloader)
 	for epoch in range(start_epoch, args.num_epochs):
-		count = 0
 		for i, (images, captions, lengths) in enumerate(train_dataloader):
 			images = images.to(device)
 			captions = captions.to(device)
@@ -87,10 +86,6 @@ def main(args):
 				loss_val = "{:.4f}".format(loss.item())
 				perplexity_val = "{:5.4f}".format(np.exp(loss.item()))
 				print(f"epoch=[{epoch}/{args.num_epochs}], iteration=[{i}/{total_examples}], loss={loss_val}, perplexity={perplexity_val}")
-
-			count += 1
-			if count == 128:
-				break
 
 		torch.save({
 			'epoch': epoch,
