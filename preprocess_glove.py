@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import argparse
 
 def main(args):
 	with open(args.vocab_path, 'rb') as f:
