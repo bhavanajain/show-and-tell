@@ -4,10 +4,29 @@ from torchvision import models
 from torch.nn.utils.rnn import pack_padded_sequence
 
 class Encoder(nn.Module):
-	def __init__(self, image_shape, embed_size):
+	def __init__(self, resnet_size, image_shape, embed_size):
 		super(Encoder, self).__init__()
-		# Give option to support multiple resnet models
-		resnet = models.resnet50(pretrained=True)
+
+		# supports multiple resnet models
+		if resnet_size == 18:
+			resnet = models.resnet18(pretrained=True)
+			print('Using resnet18')
+		elif resnet_size == 34:
+			resnet = models.resnet34(pretrained=True)
+			print('Using resnet34')
+		elif resnet_size == 50:
+			resnet = models.resnet50(pretrained=True)
+			print('Using resnet50')
+		elif resnet_size == 101:
+			resnet = models.resnet101(pretrained=True)
+			print('Using resnet101')
+		elif resnet_size == 152:
+			resnet = models.resnet152(pretrained=True)
+			print('Using resnet152')
+			
+		else:
+			print('Incorrect resnet size', resnet_size)
+
 		self.features = nn.Sequential(*list(resnet.children())[:-1])
 
 		with torch.no_grad():
@@ -24,20 +43,24 @@ class Encoder(nn.Module):
 		return out
 
 class Decoder(nn.Module):
-	def __init__(self, vocab_size, embed_size, hidden_size):
+	def __init__(self, rnn_type, vocab_size, embed_size, hidden_size):
 		super(Decoder, self).__init__()
 		# Add an option to import golve embeddings
 		self.embedding = nn.Embedding(vocab_size, embed_size)
 
 		# Support GRU or LSTM and give an option for setting numlayers and hidden unit size
-		self.lstm = nn.LSTM(embed_size, hidden_size, batch_first=True)
+		if rnn_type == 'gru':
+			self.rnn = nn.GRU(embed_size, hidden_size, batch_first=True)
+		else:
+			self.rnn = nn.LSTM(embed_size, hidden_size, batch_first=True)
+
 		self.linear = nn.Linear(hidden_size, vocab_size)
 
 	def forward(self, image_embedding, sequence, lengths):
 		seq_embedding = self.embedding(sequence)
 		inputs_embedding = torch.cat((image_embedding.unsqueeze(1), seq_embedding), 1)
 		packed_inputs = pack_padded_sequence(inputs_embedding, lengths, batch_first=True)
-		hidden_states, last_hidden_state = self.lstm(packed_inputs)
+		hidden_states, last_hidden_state = self.rnn(packed_inputs)
 		# hidden_states is packed input, extract data and feed into linear
 		outputs = self.linear(hidden_states.data)
 

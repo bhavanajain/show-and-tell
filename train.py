@@ -46,8 +46,8 @@ def main(args):
 		num_workers=args.num_workers, 
 		collate_fn=collate_fn)
 
-	encoder = Encoder((3, 224, 224), args.embed_size).to(device)
-	decoder = Decoder(len(vocab_object), args.embed_size, args.hidden_size).to(device)
+	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size).to(device)
+	decoder = Decoder(args.rnn_type, len(vocab_object), args.embed_size, args.hidden_size).to(device)
 
 	criterion = nn.CrossEntropyLoss()
 	params = list(decoder.parameters()) + list(encoder.linear.parameters())
@@ -119,6 +119,9 @@ if __name__ == '__main__':
     parser.add_argument('--log_interval', type=int, default=500)
 
     parser.add_argument('--learning_rate', type=float, default=5e-4)
+
+    parser.add_argument('--rnn_type', type=str, default='lstm')
+    parser.add_argument('--resnet_size', type=int, choices=[18, 34, 50, 101, 152], default=50)
 
     args = parser.parse_args()
     print(args)
