@@ -85,7 +85,7 @@ def main(args):
 
 		caption_words = []
 		for word_id in caption_word_ids:
-		    word = vocab.index2word[word_id]
+		    word = vocab_object.index2word[word_id]
 		    caption_words.append(word)
 		    if word == '<end>':
 		        break
