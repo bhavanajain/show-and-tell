@@ -75,9 +75,9 @@ class Decoder(nn.Module):
 		input_embedding = image_embedding.unsqueeze(1)
 		for i in range(caption_maxlen):
 			if i == 0:
-				hidden, state = self.lstm(input_embedding)
+				hidden, state = self.rnn(input_embedding)
 			else:
-				hidden, state = self.lstm(input_embedding, state)
+				hidden, state = self.rnn(input_embedding, state)
 			output = self.linear(hidden.squeeze(1))
 			max_val, predicted_index = output.max(1)
 			caption_word_ids.append(predicted_index)
