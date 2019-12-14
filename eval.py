@@ -75,9 +75,6 @@ def main(args):
 			image_embeddings = encoder(images)
 			captions_wid = decoder.sample_batch(image_embeddings, args.caption_maxlen)
 
-		# caption_word_ids is a tensor on gpu, convert it to cpu and 
-		# convert caption word ids to sentences using vocab and store in a dictionary; to be dumped as json later
-
 		captions_wid = captions_wid.cpu().numpy()
 		captions = []
 		for caption_wid in captions_wid:
@@ -87,11 +84,11 @@ def main(args):
 				caption_words.append(word)
 				if word == '<end>':
 					break
-			captions.append(' '.join(caption_words))
+			captions.append(' '.join(caption_words[1:-2]))
 
 		for image_path, caption in zip(image_paths, captions):
 			print(image_path, caption)
-			
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
