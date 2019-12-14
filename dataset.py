@@ -41,6 +41,7 @@ class ImageDataset(data.Dataset):
 	def __init__(self, root, transforms=None):
 		self.root = root
 		self.image_files = sorted(os.listdir(root))
+		self.transforms = transforms
 
 	def __getitem__(self, index):
 		curr_image_file = self.image_files[index]
