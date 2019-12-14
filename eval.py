@@ -57,13 +57,6 @@ def main(args):
 		shuffle=False, 
 		num_workers=args.num_workers)
 
-	# For testing purpose
-	# val_dataloader = torch.utils.data.DataLoader(
-	# 	dataset=val_dataset, 
-	# 	batch_size=1, 
-	# 	shuffle=False, 
-	# 	num_workers=0)
-
 	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size)
 	encoder = encoder.eval().to(device)
 	decoder = Decoder(args.rnn_type, weights_matrix, len(vocab_object), args.embed_size, args.hidden_size)
@@ -75,29 +68,30 @@ def main(args):
 	print(f"Loaded model from {args.eval_ckpt_path}")
 
 	total_examples = len(val_dataloader)
-	for i, (images, image_ids) in enumerate(val_dataloader):
+	for i, (images, image_ids, image_paths) in enumerate(val_dataloader):
 		images = images.to(device)
 
 		with torch.no_grad():
 			image_embeddings = encoder(images)
-			caption_word_ids = decoder.sample_batch(image_embeddings, args.caption_maxlen)
+			captions_wid = decoder.sample_batch(image_embeddings, args.caption_maxlen)
 
+		# caption_word_ids is a tensor on gpu, convert it to cpu and 
 		# convert caption word ids to sentences using vocab and store in a dictionary; to be dumped as json later
 
-		caption_words = []
-		for word_id in caption_word_ids:
-		    word = vocab_object.index2word[word_id]
-		    caption_words.append(word)
-		    if word == '<end>':
-		        break
-		caption = ' '.join(caption_words)
+		captions_wid = captions_wid.cpu().numpy()
+		captions = []
+		for caption_wid in captions_wid:
+			caption_words = []
+			for word_id in caption_wid:
+				word = vocab_object.index2word[word_id]
+				caption_words.append(word)
+				if word == '<end>':
+					break
+			captions.append(' '.join(caption_words))
 
-		print(caption)
-		print(image_paths)
-
-
+		for image_path, caption in zip(image_paths, captions):
+			print(image_path, caption)
 			
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
