@@ -100,14 +100,14 @@ def main(args):
 	with open(args.results_json_path,'w') as f:
 		json.dump(val_results, f)
 
-	coco = COCO(args.annotations_path)
-	coco_res = coco.loadRes(args.results_json_path)
+	# coco = COCO(args.annotations_path)
+	# coco_res = coco.loadRes(args.results_json_path)
 
-	coco_eval = COCOEvalCap(coco, coco_res)
+	# coco_eval = COCOEvalCap(coco, coco_res)
 
-	coco_eval.params['image_id'] = coco_res.getImgIds()
+	# coco_eval.params['image_id'] = coco_res.getImgIds()
 
-	coco_eval.evaluate()
+	# coco_eval.evaluate()
 
 
 
