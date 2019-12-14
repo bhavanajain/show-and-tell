@@ -80,7 +80,7 @@ class Decoder(nn.Module):
 				hidden, state = self.rnn(input_embedding, state)
 			output = self.linear(hidden.squeeze(1))
 			max_val, predicted_index = output.max(1)
-			caption_word_ids.append(predicted_index)
+			caption_word_ids.append(predicted_index.item())
 
 			input_embedding = self.embedding(predicted_index).unsqueeze(1)
 
