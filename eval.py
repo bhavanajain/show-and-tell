@@ -11,6 +11,7 @@ import os
 from torchvision import transforms
 from dataset import ImageDataset
 import numpy as np
+import json
 
 def main(args):
 
@@ -67,8 +68,10 @@ def main(args):
 	decoder.load_state_dict(model_ckpt['decoder'])
 	print(f"Loaded model from {args.eval_ckpt_path}")
 
+	val_results = []
+
 	total_examples = len(val_dataloader)
-	for i, (images, image_ids, image_paths) in enumerate(val_dataloader):
+	for i, (images, image_ids) in enumerate(val_dataloader):
 		images = images.to(device)
 
 		with torch.no_grad():
@@ -86,8 +89,12 @@ def main(args):
 					break
 			captions.append(' '.join(caption_words[1:-2]))
 
-		for image_path, caption in zip(image_paths, captions):
-			print(image_path, caption)
+		for image_id, caption in zip(image_ids, captions):
+			val_results.append({'image_id': image_id, 'caption': caption})
+
+	with open(args.results_json_path,'w') as f:
+		json.dump(val_results, f)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -96,6 +103,8 @@ if __name__ == '__main__':
     parser.add_argument('--image_root', type=str, default='val2014')
     parser.add_argument('--eval_ckpt_path', type=str, required=True)
     parser.add_argument('--glove_embed_path', type=str, default=None)
+    parser.add_argument('--results_json_path', type=str, required=True)
+
 
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--num_workers', type=int, default=8)
