@@ -37,6 +37,26 @@ class cocoDataset(data.Dataset):
 	def __len__(self):
 		return len(self.example_ids)
 
+class ImageDataset(data.Dataset):
+	def __init__(self, root, transforms=None):
+		self.root = root
+		self.image_files = sorted(os.listdir(root))
+
+	def __getitem__(self, index):
+		curr_image_file = self.image_files[index]
+
+		image_object = Image.open(os.path.join(self.root, curr_image_file)).convert('RGB')
+
+		# extract image id from the image
+		image_id = int(curr_image_file.split('.')[0].split('_')[-1])
+		if self.transforms is not None:
+			image_object = self.transforms(image_object)
+
+		return image_object, image_id, curr_image_file
+
+	def __len__(self):
+		return len(self.image_names)
+
 
 
 

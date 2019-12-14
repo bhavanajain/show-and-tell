@@ -86,6 +86,22 @@ class Decoder(nn.Module):
 
 		return caption_word_ids
 
+	# Thoughts: Maybe I should let the <end> token one go on but break when transforming to captions?
+
+	# Unfinished
+	
+	# def sample_batch(self, image_embeddings, caption_maxlen):
+	# 	caption_word_ids = [[] for i in range(image_embeddings.shape[0])]
+	# 	input_embeddings = image_embeddings.unsqueeze(1)
+	# 	for i in range(caption_maxlen):
+	# 		if i == 0:
+	# 			hidden, state = self.rnn(input_embeddings)
+	# 		else:
+	# 			hidden, state = self.rnn(inputs_embedding, state)
+
+
+
+
 
 
 
