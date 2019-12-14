@@ -55,7 +55,7 @@ class ImageDataset(data.Dataset):
 		return image_object, image_id, curr_image_file
 
 	def __len__(self):
-		return len(self.image_names)
+		return len(self.image_files)
 
 
 
