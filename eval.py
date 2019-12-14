@@ -13,6 +13,9 @@ from dataset import ImageDataset
 import numpy as np
 import json
 
+from pycocotools.coco import COCO
+from coco_eval import COCOEvalCap
+
 def main(args):
 
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -72,7 +75,7 @@ def main(args):
 
 	total_examples = len(val_dataloader)
 	for i, (images, image_ids) in enumerate(val_dataloader):
-		
+
 		images = images.to(device)
 
 		with torch.no_grad():
@@ -97,6 +100,18 @@ def main(args):
 	with open(args.results_json_path,'w') as f:
 		json.dump(val_results, f)
 
+	coco = COCO(args.annotations_path)
+	coco_res = coco.loadRes(args.results_json_path)
+
+	coco_eval = COCOEvalCap(coco, coco_res)
+
+	coco_eval.params['image_id'] = coco_res.getImgIds()
+
+	coco_eval.evaluate()
+
+
+
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -106,6 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--eval_ckpt_path', type=str, required=True)
     parser.add_argument('--glove_embed_path', type=str, default=None)
     parser.add_argument('--results_json_path', type=str, required=True)
+    parser.add_argument('--annotations_path', type=str, default='annotations/captions_val2014.json')
 
 
     parser.add_argument('--batch_size', type=int, default=256)
