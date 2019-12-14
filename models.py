@@ -100,7 +100,7 @@ class Decoder(nn.Module):
 			_, predicted = outputs.max(1)
 			caption_word_ids.append(predicted)
 
-			input_embeddings = nn.Embedding(predicted)
+			input_embeddings = self.embedding(predicted)
 			input_embeddings = input_embeddings.unsqueeze(1)
 
 		import pdb; pdb.set_trace();
