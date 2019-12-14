@@ -72,6 +72,7 @@ def main(args):
 
 	total_examples = len(val_dataloader)
 	for i, (images, image_ids) in enumerate(val_dataloader):
+		import pdb; pdb.set_trace();
 		images = images.to(device)
 
 		with torch.no_grad():
