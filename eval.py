@@ -78,8 +78,9 @@ def main(args):
 	for i, (images, image_ids) in enumerate(val_dataloader):
 		images = images.to(device)
 
-		image_embeddings = encoder(images)
-		caption_word_ids = decoder.sample_batch(image_embeddings, args.caption_maxlen)
+		with torch.no_grad():
+			image_embeddings = encoder(images)
+			caption_word_ids = decoder.sample_batch(image_embeddings, args.caption_maxlen)
 
 		# convert caption word ids to sentences using vocab and store in a dictionary; to be dumped as json later
 
