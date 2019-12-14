@@ -72,7 +72,7 @@ def main(args):
 
 	total_examples = len(val_dataloader)
 	for i, (images, image_ids) in enumerate(val_dataloader):
-		import pdb; pdb.set_trace();
+		
 		images = images.to(device)
 
 		with torch.no_grad():
@@ -90,6 +90,7 @@ def main(args):
 					break
 			captions.append(' '.join(caption_words[1:-2]))
 
+		image_ids = image_ids.tolist()
 		for image_id, caption in zip(image_ids, captions):
 			val_results.append({'image_id': image_id, 'caption': caption})
 
