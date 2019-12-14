@@ -1,5 +1,6 @@
 from pycocotools.coco import COCO
-from coco_eval import COCOEvalCap
+# from coco_eval import COCOEvalCap
+from pycocoevalcap.eval import COCOEvalCap
 import json
 
 coco = COCO(args.annotations_path)
