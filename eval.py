@@ -51,18 +51,18 @@ def main(args):
 
 	val_dataset = ImageDataset(args.image_root, img_transforms)
 
-	# val_dataloader = torch.utils.data.DataLoader(
-	# 	dataset=val_dataset, 
-	# 	batch_size=args.batch_size, 
-	# 	shuffle=True, 
-	# 	num_workers=args.num_workers)
-
-	# For testing purpose
 	val_dataloader = torch.utils.data.DataLoader(
 		dataset=val_dataset, 
-		batch_size=1, 
+		batch_size=args.batch_size, 
 		shuffle=False, 
-		num_workers=0)
+		num_workers=args.num_workers)
+
+	# For testing purpose
+	# val_dataloader = torch.utils.data.DataLoader(
+	# 	dataset=val_dataset, 
+	# 	batch_size=1, 
+	# 	shuffle=False, 
+	# 	num_workers=0)
 
 	encoder = Encoder(args.resnet_size, (3, 224, 224), args.embed_size)
 	encoder = encoder.eval().to(device)
@@ -75,11 +75,11 @@ def main(args):
 	print(f"Loaded model from {args.eval_ckpt_path}")
 
 	total_examples = len(val_dataloader)
-	for i, (images, image_ids, image_paths) in enumerate(val_dataloader):
+	for i, (images, image_ids) in enumerate(val_dataloader):
 		images = images.to(device)
 
 		image_embeddings = encoder(images)
-		caption_word_ids = decoder.sample_single(image_embeddings, args.caption_maxlen)
+		caption_word_ids = decoder.sample_batch(image_embeddings, args.caption_maxlen)
 
 		# convert caption word ids to sentences using vocab and store in a dictionary; to be dumped as json later
 
@@ -93,9 +93,6 @@ def main(args):
 
 		print(caption)
 		print(image_paths)
-
-		import pdb; pdb.set_trace();
-
 
 
 			
