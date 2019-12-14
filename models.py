@@ -87,7 +87,6 @@ class Decoder(nn.Module):
 		return caption_word_ids
 
 	def sample_batch(self, image_embeddings, caption_maxlen):
-		import pdb; pdb.set_trace();
 		caption_word_ids = []
 		input_embeddings = image_embeddings.unsqueeze(1)
 		for i in range(caption_maxlen):
@@ -95,7 +94,20 @@ class Decoder(nn.Module):
 				hiddens, states = self.rnn(input_embeddings)
 			else:
 				hiddens, states = self.rnn(input_embeddings, states)
+
 			import pdb; pdb.set_trace();
+			outputs = self.linear(hiddens.squeeze(1))
+			_, predicted = outputs.max(1)
+			caption_word_ids.append(predicted)
+
+			input_embeddings = nn.Embedding(predicted)
+			input_embeddings = input_embeddings.unsqueeze(1)
+
+		import pdb; pdb.set_trace();
+
+		caption_word_ids = torch.stack(caption_word_ids, 1)
+		return caption_word_ids
+
 			# outputs = self.linear(hiddens.)
 
 
