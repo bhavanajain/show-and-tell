@@ -69,3 +69,26 @@ class Decoder(nn.Module):
 		outputs = self.linear(hidden_states.data)
 
 		return outputs
+
+	def sample_single(self, image_embedding, caption_maxlen):
+		caption_word_ids = []
+		input_embedding = image_embedding.unsqueeze(1)
+		for i in range(caption_maxlen):
+			if i == 0:
+				hidden, state = self.lstm(input_embedding)
+			else:
+				hidden, state = self.lstm(input_embedding, state)
+			output = self.linear(hidden.squeeze(1))
+			max_val, predicted_index = output.max(1)
+			caption_word_ids.append(predicted_index)
+
+			input_embedding = self.embedding(predicted_index).unsqueeze(1)
+
+		return caption_word_ids
+
+
+
+
+
+
+
