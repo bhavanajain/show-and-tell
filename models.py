@@ -53,6 +53,8 @@ class Decoder(nn.Module):
 			self.embedding.load_state_dict({'weight': weights_matrix})
 			self.embedding.weight.requires_grad = False
 
+		self.rnn_type = rnn_type
+
 		# Support GRU or LSTM and give an option for setting numlayers and hidden unit size
 		if rnn_type == 'gru':
 			self.rnn = nn.GRU(embed_size, hidden_size, batch_first=True)
@@ -116,7 +118,7 @@ class Decoder(nn.Module):
 			new_k_sampled_ids = []
 			for j in range(batch_size):
 				extended_sentence = k_sampled_ids[new_indices[j].item()] + [new_words[j]]
-				if vocab.idx2word[new_words[j].item()]=='<end>':
+				if vocab.index2word[new_words[j].item()]=='<end>':
 					finished_k_sample_ids.append((extended_sentence, sentence_probs[new_indices[j]][new_words[j]]))
 					finished_k_sample_ids.sort(key=lambda x:-x[1])
 					batch_size -= 1
